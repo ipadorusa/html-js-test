@@ -24,6 +24,7 @@ window.addEventListener('load', () => {
 
     pause(status, delay) {
       if (status === 'pause') {
+        this.maxCount = 0;
         clearTimeout(this.flipBack);
         clearTimeout(this.repeat);
       } else {
@@ -47,12 +48,12 @@ window.addEventListener('load', () => {
         if (this.newIdx === this.max) {
           this.newIdx = 0;
           this.maxCount += 1;
+          if (this.maxCount === this.resetCount) {
+            this.maxCount = 0;
+            return this.btnStatus('pause');
+          }
         }
-        if (this.maxCount === this.resetCount) {
-          this.pause('pause');
-        } else {
-          this.resume(this.newIdx);
-        }
+        this.resume(this.newIdx);
       }, delay);
     }
 
@@ -70,7 +71,7 @@ window.addEventListener('load', () => {
     }
   }
   const ctrBtn = document.getElementById('card_pause');
-  const resetCount = 1;
+  const resetCount = 5;
   const reviewCard = new Flipcard('#wrap_card .card', ctrBtn, resetCount);
   ctrBtn.addEventListener('click', (e) => (e.currentTarget.classList.contains('pause') ? reviewCard.btnStatus('pause') : reviewCard.btnStatus('start')));
 });
