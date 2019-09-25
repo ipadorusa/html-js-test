@@ -1,58 +1,84 @@
+/* eslint-disable linebreak-style */
 window.addEventListener('load', () => {
-    class flipCard {
-        constructor(el) {
-            this.el = document.querySelectorAll(el);
-            this.max = 0;
-            this.newIdx = 0;
-            this.repeat = undefined;
-            this.flipBack = undefined;
-            this.init();
-        }
-        init() {
-            this.max = this.el.length;
-            this.start();
-        }
-        start() {
-            this.addEl(this.newIdx);
-        }
-        pause(status, delay) {
-            if(status === 'pause') {
-                clearTimeout(this.flipBack);
-                clearTimeout(this.repeat);
-            }else {
-                this.resume(this.newIdx, delay);
-            }
-        }
-        resume(idx, delay) {
-            if(!delay) delay = 1000;
-            this.repeat = setTimeout(_ => this.addEl(idx, delay), delay);
-        }
-        addEl(idx, delay) {
-            if(!delay) delay = 1000;
-            this.el[idx].classList.add('flip');
-            this.flipBack = setTimeout(_ => {
-                this.el[idx].classList.remove('flip');
-                this.newIdx+=1;
-                if(this.newIdx === this.max) this.newIdx = 0;
-                this.resume(this.newIdx);
-            }, delay);
-        }
-        btnStatus(status) {
-            if(status === 'pause') {
-                ctrBtn.classList.remove('pause');
-                ctrBtn.classList.add('start');
-                ctrBtn.textContent = '카드 시작';
-            }else {
-                ctrBtn.classList.remove('start');
-                ctrBtn.classList.add('pause');
-                ctrBtn.textContent = '카드 정지';
-            }
-            this.pause(status, 100);
-        }
+  class Flipcard {
+    constructor(el, ctrBtn, resetCount) {
+      this.el = document.querySelectorAll(el);
+      this.max = 0;
+      this.newIdx = 0;
+      this.resetCount = resetCount;
+      this.maxCount = 0;
+      this.repeat = undefined;
+      this.flipBack = undefined;
+      this.ctrBtn = ctrBtn;
+      this.init();
     }
-    const reviewCard = new flipCard('#wrap_card .card');
-    const ctrBtn = document.getElementById('card_pause');
-    ctrBtn.addEventListener('click', e => {
-        e.currentTarget.classList.contains('pause') ? reviewCard.btnStatus('pause') : reviewCard.btnStatus('start')
+
+    init() {
+      this.max = this.el.length;
+      this.start();
+    }
+
+    start() {
+      this.addEl(this.newIdx);
+    }
+
+    pause(status, delay) {
+      if (status === 'pause') {
+        clearTimeout(this.flipBack);
+        clearTimeout(this.repeat);
+      } else {
+        this.resume(this.newIdx, delay);
+      }
+    }
+
+    resume(idx, delay) {
+      if (!delay) delay = 1000;
+      this.repeat = setTimeout(() => this.addEl(idx, delay), delay);
+    }
+
+    addEl(idx, delay) {
+      if (!delay) delay = 1000;
+      if (delay === 100 && !this.el[idx].classList.contains('flip')) delay = 1000;
+
+      this.el[idx].classList.add('flip');
+      this.flipBack = setTimeout(() => {
+        this.el[idx].classList.remove('flip');
+        this.newIdx += 1;
+        if (this.newIdx === this.max) {
+          this.newIdx = 0;
+          this.maxCount += 1;
+        }
+        if (this.maxCount === this.resetCount) {
+          this.pause('pause');
+        } else {
+          this.resume(this.newIdx);
+        }
+      }, delay);
+    }
+
+    btnStatus(status) {
+      if (status === 'pause') {
+        this.ctrBtn.classList.remove('pause');
+        this.ctrBtn.classList.add('start');
+        this.ctrBtn.textContent = '카드 시작';
+      } else {
+        this.ctrBtn.classList.remove('start');
+        this.ctrBtn.classList.add('pause');
+        this.ctrBtn.textContent = '카드 정지';
+      }
+      this.pause(status, 100);
+    }
+  }
+  const ctrBtn = document.getElementById('card_pause');
+  const resetCount = 1;
+  const reviewCard = new Flipcard('#wrap_card .card', ctrBtn, resetCount);
+  ctrBtn.addEventListener('click', (e) => (e.currentTarget.classList.contains('pause') ? reviewCard.btnStatus('pause') : reviewCard.btnStatus('start')));
+});
+document.addEventListener('DOMContentLoad', () => {
+  const toogleBox = document.querySelectorAll('.box_toggle .wrap_flex_btn .btn_flex');
+  toogleBox.forEach((el) => {
+    el.addEventListener('click', (e) => {
+      e.currentTarget.closest('.box_toggle').classList.toggle('show');
     });
+  });
 });
